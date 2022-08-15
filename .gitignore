@@ -1,0 +1,5 @@
+myenv
+*.key
+*.tsv
+__pycache__
+*.vscode
