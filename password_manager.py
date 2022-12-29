@@ -29,7 +29,8 @@ def is_zeroth_line_same(zeroth_line,singleton_fernet: Singleton_Fernet):
     with open(config_file.password_file,"rb") as file:
         zero_line = file.readline()
     decrypted_zero_line = singleton_fernet.instance().decrypt(zero_line)
-    return decrypted_zero_line == zeroth_line
+    #can't compare bytes to bytes
+    return decrypted_zero_line.decode() == zeroth_line.decode()
 
 def read():
     required_use_case = input("Enter the use-case : ").lower()
@@ -73,15 +74,18 @@ def write():
 def initialize(password):
     if os.path.isfile(config_file.password_file):
         regen = input("A password file already exists. Press Y if you want to rewrite : ")
-        if regen.upper != "Y":
+        if regen.upper() != "Y":
             return
+
     key = Fernet.generate_key()
     fernet = Fernet(key)
     with open(config_file.key_file,"wb") as file:
         file.write(key)
-    first_line = f"{password}{config_file.zeroth_line}"
+    zeroth_line = f"{password}{config_file.zeroth_line}"
+    
     with open(config_file.password_file,"wb") as file:
-        file.write(fernet.encrypt(first_line.encode()))
+        #print(zeroth_line)
+        file.write(fernet.encrypt(zeroth_line.encode()))
         file.write("\n".encode())
 
 def main():
@@ -107,7 +111,6 @@ def main():
     if args.write:
         write()
         return
-    pass
 
 if __name__ == "__main__":
     main()
