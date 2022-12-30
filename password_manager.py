@@ -5,6 +5,7 @@ from cryptography.fernet import InvalidToken
 import argparse
 import config_file
 import json
+import hashlib
 
 class Singleton_Fernet:
     __instance = None
@@ -94,14 +95,15 @@ def main():
     if not(args.read or args.write or args.initialize):
         return
     password = args.read or args.write or args.initialize
+    hashed_password = hashlib.sha256(password.encode()).hexdigest()
     if args.initialize:
-        initialize(password)
+        initialize(hashed_password)
         return
     if not(os.path.isfile(config_file.password_file)):
         print("Manager not initialized")
         return
     s = Singleton_Fernet()
-    zeroth_line = password+config_file.zeroth_line
+    zeroth_line = hashed_password+config_file.zeroth_line
     if not(is_zeroth_line_same(zeroth_line.encode(),s)):
         print("Given Password doesn't match manager's password")
         return
